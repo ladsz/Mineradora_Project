@@ -1,0 +1,46 @@
+Entidade: Cidade
+    idCidade
+    nome
+    estado
+    população
+
+Entidade: Funcionário
+    idFuncionario
+    nome
+    cargo
+    telefone
+    e-mail
+    salário
+    idCidade (chave estrangeira)
+
+Entidade: Equipamento
+    idEquipamento
+    nome
+    modelo
+    fabricante
+    dataAquisicao
+    status
+    idCidade (chave estrangeira)
+
+Entidade: Serviço
+    idServico
+    nome
+    descrição
+    dataInicio
+    dataFim
+
+Relacionamentos:
+    Cidade → Funcionário
+    Uma cidade pode possuir vários funcionários.
+    Um funcionário pertence a apenas uma cidade.
+    Relacionamento: 1:N
+    
+    Cidade → Equipamento
+    Uma cidade pode possuir vários equipamentos.
+    Um equipamento pertence a apenas uma cidade.
+    Relacionamento: 1:N
+    
+    Serviço → Equipamento
+    Um serviço pode utilizar vários equipamentos.
+    Um equipamento pode participar de vários serviços.
+    Relacionamento: N:N
