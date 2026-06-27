@@ -13,6 +13,7 @@ function App(){
  
   return(
       <div>
+        <h1>MINERADORA XYZ</h1>
         <Menu setPagina={setPagina}></Menu>
         <hr />
         {pagina === "inicio" && <Inicio/>}
