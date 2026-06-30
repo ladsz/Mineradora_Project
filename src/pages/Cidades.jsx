@@ -7,7 +7,7 @@ export default function Cidades() {
   const [nome, setNome] = useState("");
   const [estado, setEstado] = useState("");
 
-  // 📥 CARREGAR CIDADES
+  // CARREGAR DO SUPABASE
   const carregarCidades = async () => {
     const { data, error } = await supabase
       .from("cidades")
@@ -21,38 +21,34 @@ export default function Cidades() {
     setCidades(data || []);
   };
 
-  // 🔄 CARREGA AO ABRIR A PÁGINA
+  // CARREGA AO ABRIR A PÁGINA
   useEffect(() => {
     carregarCidades();
   }, []);
 
-  // ➕ CADASTRAR CIDADE
-  const cadastrar = async () => {
+  // CADASTRAR APENAS NA LISTA (NÃO SALVA NO SUPABASE)
+  const cadastrar = () => {
     if (!nome || !estado) {
       alert("Preencha todos os campos!");
       return;
     }
 
-    const { error } = await supabase
-      .from("cidades")
-      .insert([{ nome, estado }]);
+    const novaCidade = {
+      id: Date.now(), // ID temporário
+      nome,
+      estado,
+    };
 
-    if (error) {
-      console.error("Erro ao cadastrar:", error);
-      return;
-    }
+    setCidades([...cidades, novaCidade]);
 
     setNome("");
     setEstado("");
-
-    carregarCidades();
   };
 
   return (
     <div>
       <h2>Gestão de Cidades</h2>
 
-      {/* FORMULÁRIO */}
       <div>
         <h3>Nova Cidade</h3>
 
@@ -71,10 +67,11 @@ export default function Cidades() {
         />
 
         <button onClick={cadastrar}>Cadastrar</button>
-        
+        <button onClick={carregarCidades} style={{ marginLeft: "10px" }}>
+          Carregar Cidades
+        </button>
       </div>
 
-      {/* LISTA */}
       <div>
         <h3>Cidades Cadastradas</h3>
 

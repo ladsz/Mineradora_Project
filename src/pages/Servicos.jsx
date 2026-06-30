@@ -7,7 +7,7 @@ export default function Servicos() {
   const [nome, setNome] = useState("");
   const [valor, setValor] = useState("");
 
-  // 📥 CARREGAR DO BANCO
+  // CARREGAR DO SUPABASE
   const carregarServicos = async () => {
     const { data, error } = await supabase
       .from("servicos")
@@ -21,43 +21,34 @@ export default function Servicos() {
     setServicos(data || []);
   };
 
-  // 🔄 CARREGA AO ABRIR
+  // CARREGA AO ABRIR A PÁGINA
   useEffect(() => {
     carregarServicos();
   }, []);
 
-  // ➕ INSERIR NO BANCO (FUNCIONANDO)
-  const cadastrar = async () => {
+  // CADASTRAR APENAS NA LISTA (NÃO SALVA NO SUPABASE)
+  const cadastrar = () => {
     if (!nome || !valor) {
       alert("Preencha todos os campos!");
       return;
     }
 
-    const { error } = await supabase
-      .from("servicos")
-      .insert([
-        {
-          nome: nome,
-          valor: Number(valor),
-        },
-      ]);
+    const novoServico = {
+      id: Date.now(), // ID temporário
+      nome,
+      valor: Number(valor),
+    };
 
-    if (error) {
-      console.error("Erro ao cadastrar:", error);
-      return;
-    }
+    setServicos([...servicos, novoServico]);
 
     setNome("");
     setValor("");
-
-    carregarServicos(); // atualiza lista
   };
 
   return (
     <div>
       <h2>Gestão de Serviços</h2>
 
-      {/* FORMULÁRIO */}
       <h3>Novo Serviço</h3>
 
       <input
@@ -77,7 +68,6 @@ export default function Servicos() {
       <button onClick={cadastrar}>Cadastrar</button>
       <button onClick={carregarServicos}>Carregar Serviços</button>
 
-      {/* LISTA */}
       <h3>Serviços Cadastrados</h3>
 
       {servicos.length === 0 ? (

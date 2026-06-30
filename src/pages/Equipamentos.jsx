@@ -6,7 +6,7 @@ export default function Equipamentos() {
   const [nome, setNome] = useState("");
   const [setor, setSetor] = useState("");
 
-  // ✅ CARREGAR DADOS
+  // CARREGAR DO SUPABASE
   const carregarEquipamentos = async () => {
     const { data, error } = await supabase
       .from("equipamentos")
@@ -26,59 +26,34 @@ export default function Equipamentos() {
     setEquipamentos(formatted);
   };
 
-  // ✅ CARREGA AO ABRIR A PÁGINA
+  // CARREGA AO ABRIR A PÁGINA
   useEffect(() => {
     carregarEquipamentos();
   }, []);
 
-  // ✅ CADASTRAR NO SUPABASE
-  const cadastrar = async () => {
+  // CADASTRAR APENAS NA LISTA (NÃO SALVA NO SUPABASE)
+  const cadastrar = () => {
     if (!nome || !setor) {
       alert("Preencha todos os campos!");
       return;
     }
 
-    try {
-      console.log("Cadastrando equipamento:", { nome, setor });
-      const { data, error } = await supabase
-        .from("equipamentos")
-        .insert([{ nome: [nome], setor: [setor] }])
-        .select();
+    const novoEquipamento = {
+      id: Date.now(), // ID temporário
+      nome,
+      setor,
+    };
 
-      if (error) {
-        console.error("Erro ao cadastrar equipamento:", error);
-        alert(`Erro ao cadastrar: ${error.message}`);
-        return;
-      }
+    setEquipamentos([...equipamentos, novoEquipamento]);
 
-      if (!data || data.length === 0) {
-        alert("Equipamento cadastrado, mas não foi possível recuperar os dados.");
-        carregarEquipamentos();
-        setNome("");
-        setSetor("");
-        return;
-      }
-
-      const formattedData = data.map((item) => ({
-        ...item,
-        nome: Array.isArray(item.nome) ? item.nome[0] : item.nome,
-        setor: Array.isArray(item.setor) ? item.setor[0] : item.setor,
-      }));
-
-      setEquipamentos((prev) => [...prev, ...formattedData]);
-      setNome("");
-      setSetor("");
-    } catch (error) {
-      console.error("Erro inesperado ao cadastrar:", error);
-      alert("Erro inesperado ao cadastrar equipamento. Veja o console do navegador.");
-    }
+    setNome("");
+    setSetor("");
   };
 
   return (
     <div>
       <h2>Gestão de Equipamentos</h2>
 
-      {/* FORMULÁRIO */}
       <div>
         <h3>Novo Equipamento</h3>
 
@@ -97,10 +72,11 @@ export default function Equipamentos() {
         />
 
         <button onClick={cadastrar}>Cadastrar</button>
-
+        <button onClick={carregarEquipamentos} style={{ marginLeft: "10px" }}>
+          Carregar Equipamentos
+        </button>
       </div>
 
-      {/* LISTA */}
       <div>
         <h3>Equipamentos Cadastrados</h3>
 

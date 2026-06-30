@@ -8,59 +8,48 @@ export default function Funcionarios() {
   const [cargo, setCargo] = useState('');
   const [salario, setSalario] = useState('');
 
-  // 🔄 CARREGAR DO BANCO
+  // CARREGAR DO SUPABASE
   const carregarFuncionarios = async () => {
     const { data, error } = await supabase
       .from("funcionarios")
       .select("*");
 
     if (error) {
-      console.error("Erro ao carregar:", error);
+      console.error("Erro ao carregar funcionários:", error);
       return;
     }
 
     setFuncionarios(data || []);
   };
 
-  // 📥 CARREGA AO ABRIR A PÁGINA
   useEffect(() => {
     carregarFuncionarios();
   }, []);
 
-  // ➕ CADASTRAR NO SUPABASE
-  const cadastrar = async () => {
+  const cadastrar = () => {
     if (!nome || !cargo || !salario) {
       alert("Preencha todos os campos!");
       return;
     }
 
-    const { error } = await supabase
-      .from("funcionarios")
-      .insert([
-        {
-          nome,
-          cargo,
-          salario: Number(salario)
-        }
-      ]);
+    const novoFuncionario = {
+      id: Date.now(), // ID temporário
+      nome,
+      cargo,
+      salario: Number(salario)
+    };
 
-    if (error) {
-      console.error("Erro ao cadastrar:", error);
-      return;
-    }
+    setFuncionarios([...funcionarios, novoFuncionario]);
 
     setNome('');
     setCargo('');
     setSalario('');
-
-    carregarFuncionarios(); // atualiza lista
   };
 
   return (
     <div>
       <h2>Gestão de Funcionários</h2>
 
-      {/* FORMULÁRIO */}
       <div style={{ marginBottom: '20px', border: '1px solid #ccc', padding: '10px' }}>
         <h3>Novo Funcionário</h3>
 
@@ -89,9 +78,11 @@ export default function Funcionarios() {
         />
 
         <button onClick={cadastrar}>Cadastrar</button>
+        <button onClick={carregarFuncionarios} style={{ marginLeft: '10px' }}>
+          Carregar Funcionários
+        </button>
       </div>
 
-      {/* LISTA */}
       <div>
         <h3>Funcionários Cadastrados</h3>
 
