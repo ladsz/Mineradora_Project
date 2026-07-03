@@ -4,6 +4,7 @@ import supabase from "../services/supabase";
 export default function Servicos() {
   const [servicos, setServicos] = useState([]);
 
+  const [id, setId] = useState("");
   const [nome, setNome] = useState("");
   const [valor, setValor] = useState("");
 
@@ -25,22 +26,34 @@ export default function Servicos() {
     carregarServicos();
   }, []);
 
-  const cadastrar = () => {
-    if (!nome || !valor) {
+  // CADASTRAR NO SUPABASE
+  const cadastrar = async () => {
+    if (!id || !nome || !valor) {
       alert("Preencha todos os campos!");
       return;
     }
 
-    const novoServico = {
-      id: Date.now(), // ID temporário
-      nome,
-      valor: Number(valor),
-    };
+    const { error } = await supabase
+      .from("servicos")
+      .insert([
+        {
+          id: Number(id),
+          nome,
+          valor: Number(valor),
+        },
+      ]);
 
-    setServicos([...servicos, novoServico]);
+    if (error) {
+      console.error("Erro ao cadastrar:", error);
+      alert(error.message);
+      return;
+    }
 
+    setId("");
     setNome("");
     setValor("");
+
+    carregarServicos();
   };
 
   return (
@@ -48,6 +61,13 @@ export default function Servicos() {
       <h2>Gestão de Serviços</h2>
 
       <h3>Novo Serviço</h3>
+
+      <input
+        type="number"
+        placeholder="ID"
+        value={id}
+        onChange={(e) => setId(e.target.value)}
+      />
 
       <input
         type="text"
@@ -64,7 +84,13 @@ export default function Servicos() {
       />
 
       <button onClick={cadastrar}>Cadastrar</button>
-      <button onClick={carregarServicos}>Carregar Serviços</button>
+
+      <button
+        onClick={carregarServicos}
+        style={{ marginLeft: "10px" }}
+      >
+        Carregar Serviços
+      </button>
 
       <h3>Serviços Cadastrados</h3>
 

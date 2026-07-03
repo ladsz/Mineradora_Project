@@ -4,9 +4,11 @@ import supabase from "../services/supabase";
 export default function Cidades() {
   const [cidades, setCidades] = useState([]);
 
+  const [id, setId] = useState("");
   const [nome, setNome] = useState("");
   const [estado, setEstado] = useState("");
 
+  // CARREGAR DO SUPABASE
   const carregarCidades = async () => {
     const { data, error } = await supabase
       .from("cidades")
@@ -24,22 +26,34 @@ export default function Cidades() {
     carregarCidades();
   }, []);
 
-  const cadastrar = () => {
-    if (!nome || !estado) {
+  // CADASTRAR NO SUPABASE
+  const cadastrar = async () => {
+    if (!id || !nome || !estado) {
       alert("Preencha todos os campos!");
       return;
     }
 
-    const novaCidade = {
-      id: Date.now(), 
-      nome,
-      estado,
-    };
+    const { error } = await supabase
+      .from("cidades")
+      .insert([
+        {
+          id: Number(id),
+          nome,
+          estado,
+        },
+      ]);
 
-    setCidades([...cidades, novaCidade]);
+    if (error) {
+      console.error("Erro ao cadastrar:", error);
+      alert(error.message);
+      return;
+    }
 
+    setId("");
     setNome("");
     setEstado("");
+
+    carregarCidades();
   };
 
   return (
@@ -48,6 +62,13 @@ export default function Cidades() {
 
       <div>
         <h3>Nova Cidade</h3>
+
+        <input
+          type="number"
+          placeholder="ID"
+          value={id}
+          onChange={(e) => setId(e.target.value)}
+        />
 
         <input
           type="text"
@@ -64,7 +85,11 @@ export default function Cidades() {
         />
 
         <button onClick={cadastrar}>Cadastrar</button>
-        <button onClick={carregarCidades} style={{ marginLeft: "10px" }}>
+
+        <button
+          onClick={carregarCidades}
+          style={{ marginLeft: "10px" }}
+        >
           Carregar Cidades
         </button>
       </div>

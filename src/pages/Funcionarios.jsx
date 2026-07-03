@@ -4,10 +4,12 @@ import supabase from "../services/supabase";
 export default function Funcionarios() {
   const [funcionarios, setFuncionarios] = useState([]);
 
+  const [id, setId] = useState('');
   const [nome, setNome] = useState('');
   const [cargo, setCargo] = useState('');
   const [salario, setSalario] = useState('');
 
+  // CARREGAR DO SUPABASE
   const carregarFuncionarios = async () => {
     const { data, error } = await supabase
       .from("funcionarios")
@@ -21,28 +23,41 @@ export default function Funcionarios() {
     setFuncionarios(data || []);
   };
 
+  // CARREGA AO ABRIR A PÁGINA
   useEffect(() => {
     carregarFuncionarios();
   }, []);
 
-  const cadastrar = () => {
-    if (!nome || !cargo || !salario) {
+  // CADASTRAR NO SUPABASE
+  const cadastrar = async () => {
+    if (!id || !nome || !cargo || !salario) {
       alert("Preencha todos os campos!");
       return;
     }
 
-    const novoFuncionario = {
-      id: Date.now(), // ID temporário
-      nome,
-      cargo,
-      salario: Number(salario)
-    };
+    const { error } = await supabase
+      .from("funcionarios")
+      .insert([
+        {
+          id: Number(id),
+          nome,
+          cargo,
+          salario: Number(salario),
+        },
+      ]);
 
-    setFuncionarios([...funcionarios, novoFuncionario]);
+    if (error) {
+      console.error("Erro ao cadastrar:", error);
+      alert(error.message);
+      return;
+    }
 
+    setId('');
     setNome('');
     setCargo('');
     setSalario('');
+
+    carregarFuncionarios();
   };
 
   return (
@@ -51,6 +66,14 @@ export default function Funcionarios() {
 
       <div style={{ marginBottom: '20px', border: '1px solid #ccc', padding: '10px' }}>
         <h3>Novo Funcionário</h3>
+
+        <input
+          type="number"
+          placeholder="ID"
+          value={id}
+          onChange={(e) => setId(e.target.value)}
+          style={{ marginRight: '10px' }}
+        />
 
         <input
           type="text"
@@ -77,7 +100,11 @@ export default function Funcionarios() {
         />
 
         <button onClick={cadastrar}>Cadastrar</button>
-        <button onClick={carregarFuncionarios} style={{ marginLeft: '10px' }}>
+
+        <button
+          onClick={carregarFuncionarios}
+          style={{ marginLeft: '10px' }}
+        >
           Carregar Funcionários
         </button>
       </div>
@@ -89,7 +116,10 @@ export default function Funcionarios() {
           <p>Nenhum funcionário encontrado.</p>
         ) : (
           funcionarios.map((f) => (
-            <div key={f.id} style={{ borderBottom: '1px solid #ddd', padding: '10px 0' }}>
+            <div
+              key={f.id}
+              style={{ borderBottom: '1px solid #ddd', padding: '10px 0' }}
+            >
               <p><strong>ID:</strong> {f.id}</p>
               <p><strong>Nome:</strong> {f.nome}</p>
               <p><strong>Cargo:</strong> {f.cargo}</p>
