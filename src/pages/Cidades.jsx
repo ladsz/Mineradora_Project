@@ -7,7 +7,6 @@ export default function Cidades() {
   const [nome, setNome] = useState("");
   const [estado, setEstado] = useState("");
 
-  // CARREGAR DO SUPABASE
   const carregarCidades = async () => {
     const { data, error } = await supabase
       .from("cidades")
@@ -21,12 +20,10 @@ export default function Cidades() {
     setCidades(data || []);
   };
 
-  // CARREGA AO ABRIR A PÁGINA
   useEffect(() => {
     carregarCidades();
   }, []);
 
-  // CADASTRAR APENAS NA LISTA (NÃO SALVA NO SUPABASE)
   const cadastrar = () => {
     if (!nome || !estado) {
       alert("Preencha todos os campos!");
@@ -34,7 +31,7 @@ export default function Cidades() {
     }
 
     const novaCidade = {
-      id: Date.now(), // ID temporário
+      id: Date.now(), 
       nome,
       estado,
     };

@@ -21,12 +21,10 @@ export default function Servicos() {
     setServicos(data || []);
   };
 
-  // CARREGA AO ABRIR A PÁGINA
   useEffect(() => {
     carregarServicos();
   }, []);
 
-  // CADASTRAR APENAS NA LISTA (NÃO SALVA NO SUPABASE)
   const cadastrar = () => {
     if (!nome || !valor) {
       alert("Preencha todos os campos!");

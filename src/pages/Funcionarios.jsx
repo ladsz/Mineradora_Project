@@ -8,7 +8,6 @@ export default function Funcionarios() {
   const [cargo, setCargo] = useState('');
   const [salario, setSalario] = useState('');
 
-  // CARREGAR DO SUPABASE
   const carregarFuncionarios = async () => {
     const { data, error } = await supabase
       .from("funcionarios")

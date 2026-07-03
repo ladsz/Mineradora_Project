@@ -3,6 +3,8 @@ import supabase from "../services/supabase";
 
 export default function Equipamentos() {
   const [equipamentos, setEquipamentos] = useState([]);
+
+  const [id, setId] = useState("");
   const [nome, setNome] = useState("");
   const [setor, setSetor] = useState("");
 
@@ -17,37 +19,41 @@ export default function Equipamentos() {
       return;
     }
 
-    const formatted = (data || []).map((item) => ({
-      ...item,
-      nome: Array.isArray(item.nome) ? item.nome[0] : item.nome,
-      setor: Array.isArray(item.setor) ? item.setor[0] : item.setor,
-    }));
-
-    setEquipamentos(formatted);
+    setEquipamentos(data || []);
   };
 
-  // CARREGA AO ABRIR A PÁGINA
   useEffect(() => {
     carregarEquipamentos();
   }, []);
 
-  // CADASTRAR APENAS NA LISTA (NÃO SALVA NO SUPABASE)
-  const cadastrar = () => {
-    if (!nome || !setor) {
+  // CADASTRAR NO SUPABASE
+  const cadastrar = async () => {
+    if (!id || !nome || !setor) {
       alert("Preencha todos os campos!");
       return;
     }
 
-    const novoEquipamento = {
-      id: Date.now(), // ID temporário
-      nome,
-      setor,
-    };
+    const { error } = await supabase
+      .from("equipamentos")
+      .insert([
+        {
+          id: Number(id),
+          nome,
+          setor,
+        },
+      ]);
 
-    setEquipamentos([...equipamentos, novoEquipamento]);
+    if (error) {
+      console.error("Erro ao cadastrar:", error);
+      alert(error.message);
+      return;
+    }
 
+    setId("");
     setNome("");
     setSetor("");
+
+    carregarEquipamentos();
   };
 
   return (
@@ -56,6 +62,13 @@ export default function Equipamentos() {
 
       <div>
         <h3>Novo Equipamento</h3>
+
+        <input
+          type="number"
+          placeholder="ID"
+          value={id}
+          onChange={(e) => setId(e.target.value)}
+        />
 
         <input
           type="text"
@@ -72,7 +85,11 @@ export default function Equipamentos() {
         />
 
         <button onClick={cadastrar}>Cadastrar</button>
-        <button onClick={carregarEquipamentos} style={{ marginLeft: "10px" }}>
+
+        <button
+          onClick={carregarEquipamentos}
+          style={{ marginLeft: "10px" }}
+        >
           Carregar Equipamentos
         </button>
       </div>
